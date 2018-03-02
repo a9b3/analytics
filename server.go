@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/esayemm/analytics/config"
+)
 
 func main() {
-	fmt.Println("cool")
+	cfg := config.New()
+
+	if cfg.APP_ENV == "dev" {
+		fmt.Println(cfg)
+	}
 }
