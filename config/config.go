@@ -20,6 +20,7 @@ func New() Config {
 	}
 }
 
+// getenvOrDefault returns fallback if env var doesn't exists
 func getenvOrDefault(key, fallback string) string {
 	value, exists := os.LookupEnv(key)
 	if !exists {
