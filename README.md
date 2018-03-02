@@ -11,8 +11,11 @@ go server for collecting analytics
 Run `make` to see the available tasks.
 
 ```
+
   deps       - Installs dependencies
-  dev        - Runs development server   PORT ?= 5001
-  lint       - Runs linter
+  dev        - Runs development server     PORT ?= 9090
   test       - Runs tests
+  db.start   - Starts the development dbs
+  db.stop    - Stops the development dbs
+
 ```
