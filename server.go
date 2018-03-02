@@ -10,6 +10,6 @@ func main() {
 	cfg := config.New()
 
 	if cfg.APP_ENV == "dev" {
-		fmt.Println(cfg)
+		fmt.Printf("configs: %+v\n", cfg)
 	}
 }
