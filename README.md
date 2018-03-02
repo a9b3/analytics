@@ -6,6 +6,7 @@ go server for collecting analytics
 
 - Install [go-watcher](https://github.com/canthefason/go-watcher) for automatically restarting server upon file change during dev.
 - Use [dep](https://github.com/golang/dep) for dependencies.
+- Make a `.env` file, look at `config/config.go` for the required variables.
 
 Run `make` to see the available tasks.
 
