@@ -20,7 +20,7 @@ func main() {
 		logrus.Infof("configs: %+v\n", cfg)
 	}
 
-	r, err := api.New(*cfg)
+	r, err := api.New(cfg)
 	if err != nil {
 		logrus.WithError(err).Fatalf("api init %s", err.Error())
 		return

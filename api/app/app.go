@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func Router() http.Handler {
+func Router() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
