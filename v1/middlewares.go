@@ -24,16 +24,17 @@ func AuthMiddleware(host string) Adapter {
 			}
 			b, err := json.Marshal(p)
 			if err != nil {
-				panic(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 
 			resp, err := http.Post("http://"+host+"/api/verify", "application/json", bytes.NewBuffer(b))
 			if err != nil {
-				panic(err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 			defer resp.Body.Close()
 
 			content, _ := ioutil.ReadAll(resp.Body)
+
 			if string(content) == "true" {
 				h(w, r, ps)
 			} else {

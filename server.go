@@ -25,7 +25,7 @@ func main() {
 	router.GET("/app", v1.AuthMiddleware(cfg.AUTH_HOST)(appHandlers.Get))
 	router.POST("/app", v1.AuthMiddleware(cfg.AUTH_HOST)(appHandlers.Post))
 	router.PATCH("/app/:id", v1.AuthMiddleware(cfg.AUTH_HOST)(appHandlers.Patch))
-	router.POST("/app/:id/track", appHandlers.Track)
+	router.POST("/app/:id/track", v1.AuthMiddleware(cfg.AUTH_HOST)(appHandlers.Track))
 
 	fmt.Println("listening on port", cfg.PORT)
 	err := http.ListenAndServe(":"+cfg.PORT, router)
