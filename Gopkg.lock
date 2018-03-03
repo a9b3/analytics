@@ -8,6 +8,12 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/justinas/alice"
+  packages = ["."]
+  revision = "03f45bd4b7dad4734bc4620e46a35789349abb20"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
   packages = [
@@ -22,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6589fa190f1140f1d13155e00873fa087120e450fcbf0a2071d5e46dc5d13000"
+  inputs-digest = "a8dfe17c15beb588d31bad572452a3f5dfff6fa852f783ce2b9334bc8a212a8b"
   solver-name = "gps-cdcl"
   solver-version = 1

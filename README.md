@@ -2,6 +2,30 @@
 
 go server for collecting analytics
 
+## API
+
+### Application
+
+Each user can have multiple applications. Each application will allow you to
+send data to it.
+
+
+#### GET `/app`
+
+Get a list of the user's apps
+
+#### POST `/app`
+
+Create an app
+
+#### PATCH `/app/<id>`
+
+Update an app
+
+#### POST `/app/<id>/track`
+
+Post metrics to an app
+
 ## Dev
 
 - Install [go-watcher](https://github.com/canthefason/go-watcher) for automatically restarting server upon file change during dev.

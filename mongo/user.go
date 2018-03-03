@@ -1,6 +1,6 @@
 package mongo
 
-var userCollectionName = "user"
+var userCollection = "user"
 
 type User struct {
 	ID string `json:"id" bson:"_id"`
@@ -11,7 +11,7 @@ func CreateUser(id string) User {
 	u := User{
 		ID: id,
 	}
-	err := db.C(userCollectionName).Insert(u)
+	err := db.C(userCollection).Insert(u)
 	if err != nil {
 		panic(err)
 	}
