@@ -17,6 +17,10 @@ func Auth(host string) Adapter {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			jwt := r.Header.Get("authorization")
+			if jwt == "" {
+				http.Error(w, `Missing "authorization" header`, http.StatusBadRequest)
+				return
+			}
 			p := &authPostBody{
 				JWT: jwt,
 			}
