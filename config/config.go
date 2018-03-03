@@ -1,8 +1,10 @@
 package config
 
-import "os"
+import (
+	"github.com/spf13/viper"
+)
 
-// Config contains app config variables
+// Config contains app cfg variables
 type Config struct {
 	DB_URI    string
 	DB_NAME   string
@@ -12,21 +14,19 @@ type Config struct {
 }
 
 // New returns Config
-func New() Config {
-	return Config{
-		DB_URI:    getenvOrDefault("DB_URI", "localhost:27032"),
-		DB_NAME:   getenvOrDefault("DB_NAME", "analytics_local"),
-		PORT:      getenvOrDefault("PORT", "9090"),
-		APP_ENV:   getenvOrDefault("APP_ENV", "dev"),
-		AUTH_HOST: getenvOrDefault("AUTH_HOST", "localhost:9091"),
-	}
-}
+func New() (*Config, error) {
+	viper.SetDefault("DB_URI", "localhost:27032")
+	viper.SetDefault("DB_NAME", "analytics_local")
+	viper.SetDefault("PORT", "9090")
+	viper.SetDefault("APP_ENV", "dev")
+	viper.SetDefault("AUTH_HOST", "localhost:9091")
 
-// getenvOrDefault returns fallback if env var doesn't exists
-func getenvOrDefault(key, fallback string) string {
-	value, exists := os.LookupEnv(key)
-	if !exists {
-		return fallback
+	viper.AutomaticEnv()
+
+	cfg := new(Config)
+	if err := viper.Unmarshal(cfg); err != nil {
+		return nil, err
 	}
-	return value
+
+	return cfg, nil
 }

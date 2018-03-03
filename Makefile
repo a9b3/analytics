@@ -1,5 +1,3 @@
-PORT ?= 9090
-
 all: help
 
 help:
@@ -15,7 +13,7 @@ deps:
 	@dep ensure
 
 dev: deps db.start
-	source .env && PORT=$(PORT) watcher
+	watcher
 
 test:
 	go test $$(go list ./... | grep -v /vendor/)
