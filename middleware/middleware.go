@@ -7,13 +7,15 @@ import (
 	"net/http"
 )
 
-type Adapter func(http.Handler) http.Handler
+type middleware func(http.Handler) http.Handler
 
 type authPostBody struct {
 	JWT string `json:"jwt"`
 }
 
-func Auth(host string) Adapter {
+// Auth middleware expects a jwt authorization header and verifies it with the
+// provided <host>/api/verify
+func Auth(host string) middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			jwt := r.Header.Get("authorization")

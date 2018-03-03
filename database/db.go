@@ -1,18 +1,15 @@
-package mongo
+package database
 
 import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-var db *mgo.Database
-
 // Init sets package wide db reference
-func Init(uri, name string) *mgo.Database {
+func Init(uri, name string) (*mgo.Database, error) {
 	session, err := mgo.Dial(uri)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	db = session.DB(name)
-	return db
+	return session.DB(name), nil
 }

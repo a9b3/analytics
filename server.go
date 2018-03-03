@@ -6,6 +6,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/esayemm/analytics/api"
 	"github.com/esayemm/analytics/config"
+	"github.com/esayemm/analytics/database"
 )
 
 func main() {
@@ -14,13 +15,21 @@ func main() {
 		logrus.WithError(err).Fatalf("config init %s", err.Error())
 		return
 	}
-	// db := mongo.Init(cfg.DB_URI, cfg.DB_NAME)
-
 	if cfg.APP_ENV == "dev" {
 		logrus.Infof("configs: %+v\n", cfg)
 	}
 
-	r, err := api.New(cfg)
+	db, err := database.Init(cfg.DB_URI, cfg.DB_NAME)
+	if err != nil {
+		logrus.WithError(err).Fatalf("database init %s", err.Error())
+		return
+	}
+
+	r, err := api.New(&api.APIOption{
+		UserStore:        database.NewUserStore(db),
+		ApplicationStore: database.NewApplicationStore(db),
+		Cfg:              cfg,
+	})
 	if err != nil {
 		logrus.WithError(err).Fatalf("api init %s", err.Error())
 		return

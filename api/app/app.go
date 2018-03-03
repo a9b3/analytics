@@ -9,7 +9,13 @@ import (
 func Router() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		// err := json.NewDecoder(r.Body).Decode(&u)
+		// if err != nil {
+		// 	http.Error()
+		// 	return
+		// }
+
 		w.Write([]byte("hello"))
 	})
 
