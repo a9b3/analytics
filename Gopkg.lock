@@ -2,16 +2,10 @@
 
 
 [[projects]]
-  name = "github.com/julienschmidt/httprouter"
+  name = "github.com/go-chi/chi"
   packages = ["."]
-  revision = "8c199fb6259ffc1af525cc3ad52ee60ba8359669"
-  version = "v1.1"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/justinas/alice"
-  packages = ["."]
-  revision = "03f45bd4b7dad4734bc4620e46a35789349abb20"
+  revision = "e83ac2304db3c50cf03d96a2fcd39009d458bc35"
+  version = "v3.3.2"
 
 [[projects]]
   branch = "v2"
@@ -28,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8dfe17c15beb588d31bad572452a3f5dfff6fa852f783ce2b9334bc8a212a8b"
+  inputs-digest = "8fe77abb359fc427a4f4a3662072448b8288e1048dc4ddcf84150f7ba7805df4"
   solver-name = "gps-cdcl"
   solver-version = 1

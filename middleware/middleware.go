@@ -1,23 +1,21 @@
-package v1
+package middleware
 
 import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/julienschmidt/httprouter"
 )
 
-type Adapter func(httprouter.Handle) httprouter.Handle
+type Adapter func(http.Handler) http.Handler
 
 type authPostBody struct {
 	JWT string `json:"jwt"`
 }
 
-func AuthMiddleware(host string) Adapter {
-	return func(h httprouter.Handle) httprouter.Handle {
-		return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func Auth(host string) Adapter {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			jwt := r.Header.Get("authorization")
 			p := &authPostBody{
 				JWT: jwt,
@@ -25,21 +23,24 @@ func AuthMiddleware(host string) Adapter {
 			b, err := json.Marshal(p)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
 
 			resp, err := http.Post("http://"+host+"/api/verify", "application/json", bytes.NewBuffer(b))
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
 			}
 			defer resp.Body.Close()
 
 			content, _ := ioutil.ReadAll(resp.Body)
 
 			if string(content) == "true" {
-				h(w, r, ps)
+				next.ServeHTTP(w, r)
 			} else {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				return
 			}
-		}
+		})
 	}
 }
