@@ -9,22 +9,12 @@ go server for collecting analytics
 Each user can have multiple applications. Each application will allow you to
 send data to it.
 
-
-#### GET `/app`
-
-Get a list of the user's apps
-
-#### POST `/app`
-
-Create an app
-
-#### PATCH `/app/<id>`
-
-Update an app
-
-#### POST `/app/<id>/track`
-
-Post metrics to an app
+|URL|Method|Body|Header|Description|Response|
+|---|---|---|---|---|---|
+|`/app`|GET||`authorization:jwt`|Get list of apps|`{ results: [app...] }`|
+|`/app`|POST|`{name:string}`|`authorization:jwt`|Create an app|`{name,...}`|
+|`/app`|PATCH|`{name:string,...}`|`authorization:jwt`|Patches an app|`{name,...}`|
+|`/app/{id}/track`|POST|`{name:string, data:object}`|`key:string`|Send metric to track to the app|null|
 
 ## Dev
 
