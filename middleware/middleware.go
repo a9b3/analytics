@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
+	"github.com/esayemm/analytics/database"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type middleware func(http.Handler) http.Handler
@@ -65,6 +67,28 @@ func Auth(host, tokenSecret string) middleware {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
+		})
+	}
+}
+
+func LazyCreateUser(userStore *database.UserStore) middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			userId := r.Context().Value("userId").(string)
+			result, err := userStore.Get(bson.M{"_id": userId})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if len(result) == 0 {
+				if err := userStore.Create(&database.User{ID: userId}); err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+			}
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }

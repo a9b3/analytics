@@ -22,6 +22,7 @@ func New(apiOption *APIOption) (*chi.Mux, error) {
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.Logger)
 	r.Use(middleware.Auth(apiOption.Cfg.AUTH_HOST, apiOption.Cfg.JWT_SECRET))
+	r.Use(middleware.LazyCreateUser(apiOption.UserStore))
 
 	// app routes
 	r.Mount("/app", app.Router(apiOption.ApplicationStore))
