@@ -3,9 +3,11 @@ package app
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 
 	"github.com/esayemm/analytics/database"
 	"github.com/go-chi/chi"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func Router(applicationStore *database.ApplicationStore) *chi.Mux {
@@ -22,8 +24,7 @@ type getPayload struct {
 
 func createGet(applicationStore *database.ApplicationStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
-		results, err := applicationStore.Get(query)
+		results, err := applicationStore.Get(mgoQueryFromUrlQuery(r.URL.Query()))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -39,11 +40,28 @@ func createGet(applicationStore *database.ApplicationStore) http.HandlerFunc {
 	}
 }
 
+func mgoQueryFromUrlQuery(q url.Values) map[string]interface{} {
+	mgoQuery := bson.M{}
+	for k, _ := range q {
+		if q.Get(k) != "" {
+			mgoQuery[k] = q.Get(k)
+		}
+	}
+	return mgoQuery
+}
+
 func createPost(applicationStore *database.ApplicationStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		createdApp := database.Application{}
+		createdApp.UserID = r.Context().Value("userId").(string)
 		if err := json.NewDecoder(r.Body).Decode(&createdApp); err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		results, err := applicationStore.Get(bson.M{"name": createdApp.Name})
+		if err != nil || len(results) > 0 {
+			http.Error(w, `Given name "`+createdApp.Name+`" already exists`, http.StatusInternalServerError)
 			return
 		}
 

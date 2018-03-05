@@ -42,7 +42,13 @@ func Auth(host, tokenSecret string) middleware {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
-			ctx = context.WithValue(r.Context(), "token", token)
+			claims, ok := token.Claims.(jwtGo.MapClaims)
+			if ok && claims["id"] != "" {
+				ctx = context.WithValue(r.Context(), "userId", claims["id"])
+			} else {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
 
 			resp, err := http.Post("http://"+host+"/api/verify", "application/json", bytes.NewBuffer(b))
 			if err != nil {

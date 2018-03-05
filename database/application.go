@@ -8,7 +8,7 @@ import (
 type Application struct {
 	ID     bson.ObjectId `json:"_id" bson:"_id", omitempty`
 	Name   string        `json:"name" bson:"name"`
-	UserID string        `json:"userID" bson: "userID"`
+	UserID string        `json:"userID" bson:"userID"`
 }
 
 // NewApplicationStore returns instance of ApplicationStore
