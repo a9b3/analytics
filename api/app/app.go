@@ -89,7 +89,7 @@ func createPost(col *mgo.Collection) http.HandlerFunc {
 
 		content, err := json.Marshal(doc)
 		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
