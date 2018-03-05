@@ -6,6 +6,7 @@ import (
 	"github.com/esayemm/analytics/database"
 	"github.com/esayemm/analytics/middleware"
 	"github.com/go-chi/chi"
+	chiMiddleware "github.com/go-chi/chi/middleware"
 )
 
 type APIOption struct {
@@ -18,10 +19,12 @@ func New(apiOption *APIOption) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
 	// middlewares
-	r.Use(middleware.Auth(apiOption.Cfg.AUTH_HOST))
+	r.Use(chiMiddleware.Recoverer)
+	r.Use(chiMiddleware.Logger)
+	r.Use(middleware.Auth(apiOption.Cfg.AUTH_HOST, apiOption.Cfg.JWT_SECRET))
 
 	// app routes
-	r.Mount("/app", app.Router())
+	r.Mount("/app", app.Router(apiOption.ApplicationStore))
 
 	return r, nil
 }

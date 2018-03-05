@@ -8,6 +8,12 @@
   version = "v1.0.4"
 
 [[projects]]
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  revision = "dbeaa9332f19a944acb5736b4456cfcc02140e29"
+  version = "v3.1.0"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
@@ -15,7 +21,10 @@
 
 [[projects]]
   name = "github.com/go-chi/chi"
-  packages = ["."]
+  packages = [
+    ".",
+    "middleware"
+  ]
   revision = "e83ac2304db3c50cf03d96a2fcd39009d458bc35"
   version = "v3.3.2"
 
@@ -135,6 +144,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6ebe378a0646b00d2a467a1c3052611f7e14f90b98c07ad974495e6d1b560ace"
+  inputs-digest = "b52c13bc9e60c7af9a6967a7a6bdf09c3cfad2080e385248607a59482aff8a62"
   solver-name = "gps-cdcl"
   solver-version = 1

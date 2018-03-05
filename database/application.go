@@ -6,7 +6,9 @@ import (
 )
 
 type Application struct {
-	ID bson.ObjectId `json:"_id" bson:"_id", omitempty`
+	ID     bson.ObjectId `json:"_id" bson:"_id", omitempty`
+	Name   string        `json:"name" bson:"name"`
+	UserID string        `json:"userID" bson: "userID"`
 }
 
 // NewApplicationStore returns instance of ApplicationStore
@@ -32,6 +34,7 @@ func (a *ApplicationStore) Get(q interface{}) ([]Application, error) {
 
 // Create does a Insert on the application collection
 func (a *ApplicationStore) Create(application *Application) error {
+	application.ID = bson.NewObjectId()
 	if err := a.collection.Insert(application); err != nil {
 		return err
 	}
