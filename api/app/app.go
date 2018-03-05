@@ -13,6 +13,7 @@ import (
 func Router(applicationStore *database.ApplicationStore) *chi.Mux {
 	r := chi.NewRouter()
 	r.Get("/", createGet(applicationStore))
+	r.Get("/{id}", createGetOne(applicationStore))
 	r.Post("/", createPost(applicationStore))
 
 	return r
@@ -76,6 +77,24 @@ func createPost(applicationStore *database.ApplicationStore) http.HandlerFunc {
 			return
 		}
 
+		w.Write(content)
+	}
+}
+
+func createGetOne(applicationStore *database.ApplicationStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		result, err := applicationStore.Get(bson.M{"_id": bson.ObjectIdHex(id)})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		content, err := json.Marshal(result[0])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.Write(content)
 	}
 }
