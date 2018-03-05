@@ -12,6 +12,7 @@ import (
 type APIOption struct {
 	UserStore        *database.UserStore
 	ApplicationStore *database.ApplicationStore
+	MetricStore      *database.MetricStore
 	Cfg              *config.Config
 }
 

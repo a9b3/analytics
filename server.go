@@ -28,6 +28,7 @@ func main() {
 	r, err := api.New(&api.APIOption{
 		UserStore:        database.NewUserStore(db),
 		ApplicationStore: database.NewApplicationStore(db),
+		MetricStore:      database.NewMetricStore(db),
 		Cfg:              cfg,
 	})
 	if err != nil {
