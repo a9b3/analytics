@@ -14,7 +14,14 @@ send data to it.
 |`/app`|GET||`authorization:jwt`|Get list of apps|`{ results: [app...] }`|
 |`/app`|POST|`{name:string}`|`authorization:jwt`|Create an app|`{name,...}`|
 |`/app`|PATCH|`{name:string,...}`|`authorization:jwt`|Patches an app|`{name,...}`|
-|`/app/{id}/track`|POST|`{name:string, data:object}`|`key:string`|Send metric to track to the app|null|
+
+### Metric
+
+Each application collects data via metrics.
+
+|URL|Method|Body|Header|Description|Response|
+|---|---|---|---|---|---|
+|`/metric`|POST|`{name:string, data:object}`|`writeKey:string`|Send metric to track to the app|null|
 
 ## Dev
 
