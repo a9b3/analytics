@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/Sirupsen/logrus"
 	mgo "gopkg.in/mgo.v2"
 )
 
@@ -11,5 +12,18 @@ func Init(uri, name string) (*mgo.Database, error) {
 		return nil, err
 	}
 
-	return session.DB(name), nil
+	db := session.DB(name)
+	setCollectionInfo(db)
+	return db, nil
+}
+
+func setCollectionInfo(mdb *mgo.Database) {
+	index := mgo.Index{
+		Key:    []string{"name"},
+		Unique: true,
+	}
+	err := mdb.C(ApplicationColName).EnsureIndex(index)
+	if err != nil {
+		logrus.WithError(err).Fatalf("ensure index on application collection %s", err.Error())
+	}
 }

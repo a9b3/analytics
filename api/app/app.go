@@ -35,7 +35,7 @@ func mgoQFromURLQ(q url.Values) map[string]interface{} {
 func Router(col *mgo.Collection) *chi.Mux {
 	r := chi.NewRouter()
 	r.Get("/", createGet(col))
-	r.Get("/{id}", createGetOne(col))
+	r.Get("/{id}", createGetByID(col))
 	r.Post("/", createPost(col))
 
 	return r
@@ -43,7 +43,7 @@ func Router(col *mgo.Collection) *chi.Mux {
 
 func createGet(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var docs []db.Application
+		docs := make([]db.Application, 0)
 		err := col.Find(mgoQFromURLQ(r.URL.Query())).All(&docs)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -62,22 +62,12 @@ func createGet(col *mgo.Collection) http.HandlerFunc {
 
 func createPost(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		doc := db.Application{}
+		doc := db.Application{ID: bson.NewObjectId()}
 		doc.UserID = r.Context().Value("userId").(string)
 
 		err := json.NewDecoder(r.Body).Decode(&doc)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		size, err := col.Find(bson.M{"name": doc.Name}).Count()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if size != 0 {
-			http.Error(w, ErrAlreadyExist.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -97,7 +87,7 @@ func createPost(col *mgo.Collection) http.HandlerFunc {
 	}
 }
 
-func createGetOne(col *mgo.Collection) http.HandlerFunc {
+func createGetByID(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		var doc db.Application
