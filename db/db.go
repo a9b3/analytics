@@ -1,10 +1,10 @@
-package database
+package db
 
 import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-// Init sets package wide db reference
+// Init returns an instance of mgo.Database
 func Init(uri, name string) (*mgo.Database, error) {
 	session, err := mgo.Dial(uri)
 	if err != nil {

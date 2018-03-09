@@ -2,46 +2,26 @@ package app
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 
-	"github.com/esayemm/analytics/database"
+	"github.com/esayemm/analytics/db"
 	"github.com/go-chi/chi"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-func Router(applicationStore *database.ApplicationStore) *chi.Mux {
-	r := chi.NewRouter()
-	r.Get("/", createGet(applicationStore))
-	r.Get("/{id}", createGetOne(applicationStore))
-	r.Post("/", createPost(applicationStore))
+var (
+	// ErrAlreadyExist is returned if a resource being created already exists
+	ErrAlreadyExist = errors.New("already exists")
+)
 
-	return r
+type getResponse struct {
+	Results []db.Application `json:"results"`
 }
 
-type getPayload struct {
-	Results []database.Application `json:"results"`
-}
-
-func createGet(applicationStore *database.ApplicationStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		results, err := applicationStore.Get(mgoQueryFromUrlQuery(r.URL.Query()))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		content, err := json.Marshal(getPayload{results})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		w.Write(content)
-	}
-}
-
-func mgoQueryFromUrlQuery(q url.Values) map[string]interface{} {
+func mgoQFromURLQ(q url.Values) map[string]interface{} {
 	mgoQuery := bson.M{}
 	for k, _ := range q {
 		if q.Get(k) != "" {
@@ -51,27 +31,63 @@ func mgoQueryFromUrlQuery(q url.Values) map[string]interface{} {
 	return mgoQuery
 }
 
-func createPost(applicationStore *database.ApplicationStore) http.HandlerFunc {
+// Router returns a new restful router that can be mounted
+func Router(col *mgo.Collection) *chi.Mux {
+	r := chi.NewRouter()
+	r.Get("/", createGet(col))
+	r.Get("/{id}", createGetOne(col))
+	r.Post("/", createPost(col))
+
+	return r
+}
+
+func createGet(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		createdApp := database.Application{}
-		createdApp.UserID = r.Context().Value("userId").(string)
-		if err := json.NewDecoder(r.Body).Decode(&createdApp); err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		var docs []db.Application
+		err := col.Find(mgoQFromURLQ(r.URL.Query())).All(&docs)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		results, err := applicationStore.Get(bson.M{"name": createdApp.Name})
-		if err != nil || len(results) > 0 {
-			http.Error(w, `Given name "`+createdApp.Name+`" already exists`, http.StatusInternalServerError)
+		content, err := json.Marshal(getResponse{Results: docs})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		if err := applicationStore.Create(&createdApp); err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		w.Write(content)
+	}
+}
+
+func createPost(col *mgo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		doc := db.Application{}
+		doc.UserID = r.Context().Value("userId").(string)
+
+		err := json.NewDecoder(r.Body).Decode(&doc)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		content, err := json.Marshal(createdApp)
+		size, err := col.Find(bson.M{"name": doc.Name}).Count()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		if size != 0 {
+			http.Error(w, ErrAlreadyExist.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = col.Insert(doc)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		content, err := json.Marshal(doc)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
@@ -81,20 +97,22 @@ func createPost(applicationStore *database.ApplicationStore) http.HandlerFunc {
 	}
 }
 
-func createGetOne(applicationStore *database.ApplicationStore) http.HandlerFunc {
+func createGetOne(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
-		result, err := applicationStore.Get(bson.M{"_id": bson.ObjectIdHex(id)})
+		var doc db.Application
+		err := col.FindId(bson.ObjectIdHex(id)).One(&doc)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		content, err := json.Marshal(result[0])
+		content, err := json.Marshal(doc)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
 		w.Write(content)
 	}
 }

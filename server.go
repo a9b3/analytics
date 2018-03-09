@@ -6,7 +6,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/esayemm/analytics/api"
 	"github.com/esayemm/analytics/config"
-	"github.com/esayemm/analytics/database"
+	"github.com/esayemm/analytics/db"
 )
 
 func main() {
@@ -19,25 +19,21 @@ func main() {
 		logrus.Infof("configs: %+v\n", cfg)
 	}
 
-	db, err := database.Init(cfg.DB_URI, cfg.DB_NAME)
+	mdb, err := db.Init(cfg.DB_URI, cfg.DB_NAME)
 	if err != nil {
-		logrus.WithError(err).Fatalf("database init %s", err.Error())
+		logrus.WithError(err).Fatalf("db init %s", err.Error())
 		return
 	}
 
-	r, err := api.New(&api.APIOption{
-		UserStore:        database.NewUserStore(db),
-		ApplicationStore: database.NewApplicationStore(db),
-		MetricStore:      database.NewMetricStore(db),
-		Cfg:              cfg,
-	})
+	r, err := api.New(&api.APIOption{Mdb: mdb, Cfg: cfg})
 	if err != nil {
 		logrus.WithError(err).Fatalf("api init %s", err.Error())
 		return
 	}
 
 	logrus.Infof("listening on port %s", cfg.PORT)
-	if err := http.ListenAndServe(":"+cfg.PORT, r); err != nil {
+	err = http.ListenAndServe(":"+cfg.PORT, r)
+	if err != nil {
 		logrus.WithError(err).Fatalf("server init %s", err.Error())
 		return
 	}
