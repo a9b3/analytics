@@ -1,8 +1,8 @@
 {
-	"MONGO_URI": "",
-	"MONGO_DB_NAME": "",
-	"PORT": "",
-	"APP_ENV": "",
-	"AUTH_HOST": "",
-	"JWT_SECRET": ""
+	"MONGO_URI": "localhost:27032",
+	"MONGO_DB_NAME": "analytics_local_test",
+	"PORT": "9091",
+	"APP_ENV": "test",
+	"AUTH_HOST": "localhost:9091",
+	"JWT_SECRET": "blah"
 }

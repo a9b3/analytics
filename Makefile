@@ -13,7 +13,7 @@ deps:
 	@dep ensure
 
 dev: deps db.start
-	source .env && watcher
+	watcher
 
 test:
 	APP_ENV=test go test $$(go list ./... | grep -v /vendor/)

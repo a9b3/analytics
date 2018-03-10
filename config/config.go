@@ -6,27 +6,26 @@ import (
 
 // Config contains app cfg variables
 type Config struct {
-	DB_URI     string
-	DB_NAME    string
-	PORT       string
-	APP_ENV    string
-	AUTH_HOST  string
-	JWT_SECRET string
+	MONGO_URI     string
+	MONGO_DB_NAME string
+	PORT          string
+	APP_ENV       string
+	AUTH_HOST     string
+	JWT_SECRET    string
 }
 
 // New returns Config
 func New() (*Config, error) {
-	viper.SetDefault("DB_URI", "localhost:27032")
-	viper.SetDefault("DB_NAME", "analytics_local")
+	viper.SetDefault("MONGO_URI", "localhost:27032")
+	viper.SetDefault("MONGO_DB_NAME", "analytics_local")
 	viper.SetDefault("PORT", "9090")
 	viper.SetDefault("APP_ENV", "dev")
 	viper.SetDefault("AUTH_HOST", "localhost:9091")
 
-	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
-		return nil, err
-	}
+	// viper.AddConfigPath(".")
+	// if err := viper.ReadInConfig(); err != nil {
+	// 	return nil, err
+	// }
 
 	viper.AutomaticEnv()
 
