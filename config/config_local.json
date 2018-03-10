@@ -1,0 +1,8 @@
+{
+	"MONGO_URI": "localhost:27032",
+	"MONGO_DB_NAME": "analytics_local",
+	"PORT": "9090",
+	"APP_ENV": "dev",
+	"AUTH_HOST": "localhost:9091",
+	"JWT_SECRET": "blah"
+}

@@ -19,7 +19,7 @@ func main() {
 		logrus.Infof("configs: %+v\n", cfg)
 	}
 
-	mdb, err := db.Init(cfg.DB_URI, cfg.DB_NAME)
+	mdb, err := db.Init(cfg.MONGO_URI, cfg.MONGO_DB_NAME)
 	if err != nil {
 		logrus.WithError(err).Fatalf("db init %s", err.Error())
 		return
