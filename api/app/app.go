@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -13,11 +12,6 @@ import (
 	"github.com/go-chi/chi"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-)
-
-var (
-	// ErrAlreadyExist is returned if a resource being created already exists
-	ErrAlreadyExist = errors.New("already exists")
 )
 
 type getResponse struct {
