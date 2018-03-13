@@ -19,7 +19,7 @@ func Init(uri, name string) (*mgo.Database, error) {
 
 func setCollectionInfo(mdb *mgo.Database) {
 	index := mgo.Index{
-		Key:    []string{"name"},
+		Key:    []string{"name", "_id"},
 		Unique: true,
 	}
 	err := mdb.C(ApplicationColName).EnsureIndex(index)

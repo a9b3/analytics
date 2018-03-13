@@ -16,7 +16,7 @@ dev: deps db.start
 	watcher
 
 test:
-	APP_ENV=test go test $$(go list ./... | grep -v /vendor/)
+	APP_ENV=test go test -v $$(go list ./... | grep -v /vendor/)
 
 db.start:
 	@docker-compose -f docker-compose.yml up -d --remove-orphans

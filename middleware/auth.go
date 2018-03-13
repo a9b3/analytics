@@ -36,17 +36,25 @@ func Auth(host, tokenSecret string) Middleware {
 			token, err := jwtGo.Parse(jwt, func(token *jwtGo.Token) (interface{}, error) {
 				return []byte(tokenSecret), nil
 			})
-			if err != nil || !token.Valid {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
+			if !token.Valid {
+				http.Error(w, "token is not valid", http.StatusInternalServerError)
+				return
+			}
+
 			claims, ok := token.Claims.(jwtGo.MapClaims)
-			if ok && claims["id"] != "" {
-				ctx = context.WithValue(r.Context(), "userId", claims["id"])
-			} else {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			if !ok {
+				http.Error(w, "cannot convert token claims", http.StatusInternalServerError)
 				return
 			}
+			if claims["id"] == "" {
+				http.Error(w, "claims does not have id field", http.StatusInternalServerError)
+				return
+			}
+			ctx = context.WithValue(r.Context(), "userId", claims["id"])
 
 			resp, err := http.Post("http://"+host+"/api/verify", "application/json", bytes.NewBuffer(b))
 			if err != nil {
