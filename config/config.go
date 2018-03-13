@@ -21,6 +21,7 @@ func New() (*Config, error) {
 	viper.SetDefault("PORT", "9090")
 	viper.SetDefault("APP_ENV", "dev")
 	viper.SetDefault("AUTH_HOST", "localhost:9091")
+	viper.SetDefault("JWT_SECRET", "blah")
 
 	// viper.AddConfigPath(".")
 	// if err := viper.ReadInConfig(); err != nil {

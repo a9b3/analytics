@@ -3,8 +3,11 @@ package app
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/esayemm/analytics/db"
 	"github.com/go-chi/chi"
@@ -21,14 +24,45 @@ type getResponse struct {
 	Results []db.Application `json:"results"`
 }
 
+// TODO implement mongo operators
+// eg. age=gte:10 => { age: { $gte: 10 } }
+//     age=gte:10,lt:20 => { age: { $gte: 10, $lt: 20 } }
+func valueToBson(s string) interface{} {
+	operators := strings.Split(s, ",")
+	if len(operators) == 1 {
+		fmt.Println("here")
+		return s
+	}
+	return s
+}
+
 func mgoQFromURLQ(q url.Values) map[string]interface{} {
 	mgoQuery := bson.M{}
 	for k, _ := range q {
-		if q.Get(k) != "" {
-			mgoQuery[k] = q.Get(k)
+		switch k {
+		case "sort", "limit":
+			continue
 		}
+		mgoQuery[k] = valueToBson(q.Get(k))
 	}
 	return mgoQuery
+}
+
+func buildQuery(c *mgo.Collection, q url.Values) *mgo.Query {
+	query := c.Find(mgoQFromURLQ(q))
+
+	sortBys := strings.Split(q.Get("sort"), ",")
+	if len(sortBys) > 0 {
+		query = query.Sort(sortBys...)
+	}
+
+	limit := q.Get("limit")
+	limitInt, err := strconv.Atoi(limit)
+	if err == nil {
+		query = query.Limit(limitInt)
+	}
+
+	return query
 }
 
 // Router returns a new restful router that can be mounted
@@ -44,7 +78,9 @@ func Router(col *mgo.Collection) *chi.Mux {
 func createGet(col *mgo.Collection) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		docs := make([]db.Application, 0)
-		err := col.Find(mgoQFromURLQ(r.URL.Query())).All(&docs)
+
+		q := buildQuery(col, r.URL.Query())
+		err := q.All(&docs)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
